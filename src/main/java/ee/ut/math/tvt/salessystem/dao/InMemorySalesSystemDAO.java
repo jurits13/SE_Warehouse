@@ -3,44 +3,77 @@ package ee.ut.math.tvt.salessystem.dao;
 import ee.ut.math.tvt.salessystem.dataobjects.SoldItem;
 import ee.ut.math.tvt.salessystem.dataobjects.StockItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Data Access Object for loading and saving sales system data.
- * Feel free to add methods here!
- * <p>
- * The sample implementation is called {@link InMemorySalesSystemDAO}. It allows you
- * to run the application without configuring a real database. Making changes is simple
- * and all data is lost when restarting the app. Later you will need to create a new
- * implementation {@link HibernateSalesSystemDAO} for SalesSystemDAO that uses a real
- * database to store the data. Keep the existing InMemorySalesSystemDAO implementation,
- * it will be useful when writing tests in lab6.
- * <p>
- * Implementations of this class must only handle storage/retrieval of the data.
- * Business logic and validation should happen in separate specialized classes.
- * Separating data access and business logic allows you to later test the business
- * logic using the InMemorySalesSystemDAO and avoid configuring the database for
- * each test (much faster and more convenient).
- * <p>
- * Note the transaction related methods. These will become relevant when you
- * start using a real database. Transactions allow you to group database operations
- * so that either all of them succeed or nothing at all is done.
- */
-public interface SalesSystemDAO {
+public class InMemorySalesSystemDAO implements SalesSystemDAO {
 
-    List<StockItem> findStockItems();
+    private final List<StockItem> stockItemList;
+    private final List<SoldItem> soldItemList;
 
-    StockItem findStockItem(long id);
+    public InMemorySalesSystemDAO() {
+        List<StockItem> items = new ArrayList<StockItem>();
+        items.add(new StockItem(1L, "Lays chips", "Potato chips", 11.0, 5));
+        items.add(new StockItem(2L, "Chupa-chups", "Sweets", 8.0, 8));
+        items.add(new StockItem(3L, "Frankfurters", "Beer sauseges", 15.0, 12));
+        items.add(new StockItem(4L, "Free Beer", "Student's delight", 0.0, 100));
+        this.stockItemList = items;
+        this.soldItemList = new ArrayList<>();
+    }
 
-    void saveStockItem(StockItem stockItem);
+    @Override
+    public List<StockItem> findStockItems() {
+        return stockItemList;
+    }
 
-    void saveSoldItem(SoldItem item);
+    @Override
+    public StockItem findStockItem(long id) {
+        for (StockItem item : stockItemList) {
+            if (item.getId() == id)
+                return item;
+        }
+        return null;
+    }
 
-    void beginTransaction();
+    @Override
+    public void saveSoldItem(SoldItem item) {
+        soldItemList.add(item);
+    }
 
-    void rollbackTransaction();
+    @Override
+    public void saveStockItem(StockItem stockItem) {
+        stockItemList.add(stockItem);
 
-    void commitTransaction();
-    
-    boolean barcodeExists(Long barcode);
+        StockItem existingItem = findStockItem(stockItem.getId());
+
+        if (existingItem != null) {
+            // Update the quantity if item exists
+            existingItem.setQuantity(existingItem.getQuantity() + stockItem.getQuantity());
+        } else {
+            // Add new item if it doesn't exist
+            stockItemList.add(stockItem);
+        }
+    }
+
+    @Override
+    public void beginTransaction() {
+    }
+
+    @Override
+    public void rollbackTransaction() {
+    }
+
+    @Override
+    public void commitTransaction() {
+    }
+
+    @Override
+    public boolean barcodeExists(Long barcode) {
+        for (StockItem item : stockItemList) {
+            if (item.getId().equals(barcode)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
