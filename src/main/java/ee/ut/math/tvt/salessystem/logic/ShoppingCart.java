@@ -48,13 +48,25 @@ public class ShoppingCart {
 
     public void submitCurrentPurchase() {
         // TODO decrease quantities of the warehouse stock
-
         // note the use of transactions. InMemorySalesSystemDAO ignores transactions
         // but when you start using hibernate in lab5, then it will become relevant.
         // what is a transaction? https://stackoverflow.com/q/974596
         dao.beginTransaction();
         try {
             for (SoldItem item : items) {
+                StockItem stockItem = dao.findStockItem(item.getStockItem().getId());
+
+                if (stockItem == null) {
+                    throw new IllegalArgumentException("Stock item not found for this id: " + item.getStockItem().getId());
+                }
+
+                int remainingQuantity = stockItem.getQuantity() - item.getQuantity();
+                if (remainingQuantity < 0) {
+                    throw new IllegalArgumentException("Not enough stock for item: " + item.getName() + ". Available: "
+                            + item.getQuantity());
+                }
+                stockItem.setQuantity(remainingQuantity);
+
                 dao.saveSoldItem(item);
             }
             dao.commitTransaction();
@@ -65,3 +77,4 @@ public class ShoppingCart {
         }
     }
 }
+
