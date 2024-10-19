@@ -841,3 +841,13 @@
     -fx-opacity: .4;
      
 }
+
+
+.blue_style .table-row-cell {
+    -fx-border-color: lightgrey;
+    -fx-border-width: 0 0 1 0; /* Bottom border for row cells */
+}
+.blue_style .table-column {
+    -fx-border-color: lightgrey;
+    -fx-border-width: 0 1 0 0; /* Right border for columns */
+}
