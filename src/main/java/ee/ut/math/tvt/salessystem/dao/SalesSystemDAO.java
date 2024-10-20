@@ -46,4 +46,5 @@ public interface SalesSystemDAO {
 
     void updateStockQuantity(Long barCode, int quantityChange);
 
+    StockItem findStockItemByBarcode(long barCode);
 }

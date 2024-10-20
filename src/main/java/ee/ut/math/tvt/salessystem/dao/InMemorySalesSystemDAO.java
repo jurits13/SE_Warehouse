@@ -15,7 +15,7 @@ public class InMemorySalesSystemDAO implements SalesSystemDAO {
         List<StockItem> items = new ArrayList<StockItem>();
         items.add(new StockItem(1L, "Lays chips", "Potato chips", 11.0, 5));
         items.add(new StockItem(2L, "Chupa-chups", "Sweets", 8.0, 8));
-        items.add(new StockItem(3L, "Frankfurters", "Beer sauseges", 15.0, 12));
+        items.add(new StockItem(3L, "Frankfurters", "Beer sausages", 15.0, 12));
         items.add(new StockItem(4L, "Free Beer", "Student's delight", 0.0, 100));
         this.stockItemList = items;
         this.soldItemList = new ArrayList<>();
@@ -42,18 +42,18 @@ public class InMemorySalesSystemDAO implements SalesSystemDAO {
 
     @Override
     public void saveStockItem(StockItem stockItem) {
-        stockItemList.add(stockItem);
-
-        StockItem existingItem = findStockItem(stockItem.getId());
+        // Check if the stock item already exists using the barcode
+        StockItem existingItem = findStockItemByBarcode(stockItem.getId());
 
         if (existingItem != null) {
-            // Update the quantity if item exists
+            // Update the quantity if the item exists
             existingItem.setQuantity(existingItem.getQuantity() + stockItem.getQuantity());
         } else {
-            // Add new item if it doesn't exist
+            // If it doesn't exist, add it as a new item
             stockItemList.add(stockItem);
         }
     }
+
 
     @Override
     public void beginTransaction() {
@@ -69,17 +69,12 @@ public class InMemorySalesSystemDAO implements SalesSystemDAO {
 
     @Override
     public boolean barcodeExists(Long barcode) {
-        for (StockItem item : stockItemList) {
-            if (item.getId().equals(barcode)) {
-                return true;
-            }
-        }
-        return false;
+        return findStockItemByBarcode(barcode) != null;
     }
 
     @Override
     public void updateStockQuantity(Long barCode, int quantityChange) {
-        StockItem existingItem = findStockItem(barCode);
+        StockItem existingItem = findStockItemByBarcode(barCode);
         if (existingItem == null) {
             throw new IllegalArgumentException("Item with this barcode doesn't exist.");
         }
@@ -89,8 +84,16 @@ public class InMemorySalesSystemDAO implements SalesSystemDAO {
             throw new IllegalArgumentException("Quantity cannot be negative.");
         }
         existingItem.setQuantity(newQuantity);
-        saveStockItem(existingItem);
     }
 
 
+    // New method to find stock item by barcode
+    public StockItem findStockItemByBarcode(long barcode) {
+        for (StockItem item : stockItemList) {
+            if (item.getId().equals(barcode)) {
+                return item;
+            }
+        }
+        return null; // Return null if no item with that barcode is found
+    }
 }

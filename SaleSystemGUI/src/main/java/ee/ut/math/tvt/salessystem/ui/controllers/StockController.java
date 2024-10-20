@@ -98,25 +98,29 @@ public class StockController implements Initializable {
                 return;
             }
 
+            // Check if the barcode already exists
             if (dao.barcodeExists(barCode)) {
-                showAlert(AlertType.ERROR, "Duplicate Barcode", "Barcode already exists.");
-                return;
-            }
+                // Fetch the existing item
+                StockItem existingItem = dao.findStockItemByBarcode(barCode);
+                if (existingItem != null) {
+                    // Check if name and price match
+                    if (!existingItem.getName().equals(name) || existingItem.getPrice() != price) {
+                        showAlert(AlertType.ERROR, "Invalid Input", "Cannot add item: Name and price do not match existing item.");
+                        return;
+                    }
 
-            if (quantity < 0) {
-                try {
-                    dao.updateStockQuantity(barCode, quantity);
-                    showAlert(AlertType.INFORMATION, "Stock Updated", "Stock quantity updated Successfully.");
-                    refreshStockItems();
-                } catch (IllegalArgumentException e) {
-                    showAlert(AlertType.ERROR, "Invalid Input", "Product quantity cannot be negative.");
+                    // If they match, update the quantity
+                    dao.updateStockQuantity(barCode, quantity);  // Only add the new quantity
+
+                    // No alert here when updating the stock quantity
+
+                    refreshStockItems();  // Refresh the table to reflect the update
+                    return;
                 }
-                return;
             }
 
-
+            // If the barcode doesn't exist, create a new StockItem
             StockItem newItem = new StockItem(barCode, name, "", price, quantity);
-
             dao.saveStockItem(newItem);  // Save new item using DAO
 
             // Clear input fields
@@ -128,8 +132,8 @@ public class StockController implements Initializable {
             refreshStockItems();  // Refresh the table to show the new product
         } catch (NumberFormatException e) {
             // Handle invalid input format (e.g., price or quantity is not a number)
+            showAlert(AlertType.ERROR, "Invalid Input", "Please enter valid numerical values.");
             System.out.println("Invalid input: " + e.getMessage());
         }
-
     }
 }
