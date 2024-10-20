@@ -2,6 +2,7 @@ package ee.ut.math.tvt.salessystem.logic;
 
 import ee.ut.math.tvt.salessystem.dao.SalesSystemDAO;
 import ee.ut.math.tvt.salessystem.dataobjects.SoldItem;
+import ee.ut.math.tvt.salessystem.dataobjects.StockItem;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -55,6 +56,7 @@ public class ShoppingCart {
         dao.beginTransaction();
         try {
             for (SoldItem item : items) {
+                dao.updateStockQuantity(item.getStockItem().getId(), -item.getQuantity());
                 dao.saveSoldItem(item);
             }
             dao.commitTransaction();

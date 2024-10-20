@@ -30,22 +30,22 @@
     <bottom>
       <TableView fx:id="warehouseTableView" styleClass="blue_style" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn text="Id">
-            <cellValueFactory>
+          <TableColumn fx:id="idColumn" text="Id">
+          <cellValueFactory>
               <PropertyValueFactory property="id" />
             </cellValueFactory>
           </TableColumn>
-          <TableColumn text="Name">
-            <cellValueFactory>
+          <TableColumn fx:id="nameColumn" text="Name">
+          <cellValueFactory>
               <PropertyValueFactory property="name" />
             </cellValueFactory>
           </TableColumn>
-          <TableColumn text="Price">
+          <TableColumn fx:id="priceColumn" text="Price">
             <cellValueFactory>
               <PropertyValueFactory property="price" />
             </cellValueFactory>
           </TableColumn>
-          <TableColumn text="Quantity">
+          <TableColumn fx:id="quantityColumn" text="Quantity">
             <cellValueFactory>
               <PropertyValueFactory property="quantity" />
             </cellValueFactory>

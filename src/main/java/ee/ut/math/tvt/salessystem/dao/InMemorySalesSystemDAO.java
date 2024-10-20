@@ -66,4 +66,31 @@ public class InMemorySalesSystemDAO implements SalesSystemDAO {
     @Override
     public void commitTransaction() {
     }
+
+    @Override
+    public boolean barcodeExists(Long barcode) {
+        for (StockItem item : stockItemList) {
+            if (item.getId().equals(barcode)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void updateStockQuantity(Long barCode, int quantityChange) {
+        StockItem existingItem = findStockItem(barCode);
+        if (existingItem == null) {
+            throw new IllegalArgumentException("Item with this barcode doesn't exist.");
+        }
+
+        int newQuantity = existingItem.getQuantity() + quantityChange;
+        if (newQuantity < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative.");
+        }
+        existingItem.setQuantity(newQuantity);
+        saveStockItem(existingItem);
+    }
+
+
 }
